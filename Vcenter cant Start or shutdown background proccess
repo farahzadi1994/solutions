@@ -1,0 +1,258 @@
+When your machine Won't be start or any task and Have error in Vcenter 7 (virtual machine don't start another task in progress) you can Use this reference.
+
+#solution 1
+
+Solution when Unable to power off a virtual machine in an ESXi host:
+Warning: Follow the sections and steps in this article in order. Do not skip a section or step, as each step may have an impact on the virtual machine.
+1.	Powering off the virtual machine using the vSphere Client/vSphere Web Client
+2.	Using the ESXi esxcli command to power off a virtual machine
+3.	Using esxtop to kill a virtual machine
+4.	Using the ESXi command-line utility vim-cmd to power off the virtual machine
+Powering off the virtual machine using the vSphere Client/vSphere Web Client
+Attempt to power off the virtual machine gracefully using the client:
+1.	Connect the vSphere Client or vSphere Web Client to VMware vCenter Server.
+2.	Right-click the virtual machine and click Power off. If the power operation fails with Another task is already in progress, wait for the task to complete or see Powering off a virtual machine fails with the error: Cannot power Off: Another task is already in progress (1027040) or vCenter operation times out with the error: Operation failed since another task is in progress (1004790).
+3.	If the virtual machine remains running, attempt the same operation from the ESXi host directly.
+4.	Connect the vSphere Client or VMware Host Client directly to the ESXi host running the virtual machine.
+5.	Right-click on the virtual machine and select Power off.
+Note: From vSphere 6.5, you can enable Virtual Machine Encryption to protect virtual machine and its files.
+If encryption is enabled on the virtual machine then you must have a set of Cryptographic Operations privileges failing which you will not be able to power off the virtual machine.
+ 
+For more information on the Privileges, see Prerequisites and Required Privileges for Encryption Tasks section in the ESXi and vCenter Server 6.5 Documentation.
+If the virtual machine cannot be powered off gracefully using the client, use one of the command-line options.
+ 
+Using the ESXi esxcli command to power off a virtual machine
+The esxcli command can be used locally or remotely to power off a virtual machine running on ESXi 5.x or later.
+1.	Get a list of running virtual machines, identified by World ID, UUID, Display Name, and path to the .vmx configuration file by running this command:
+
+esxcli vm process list
+ 
+2.	Power off the virtual machine from the list by running this command:
+
+esxcli vm process kill --type= [soft,hard,force] --world-id= WorldNumber
+
+Notes:
+•	Three power-off methods are available. Soft is the most graceful, hard performs an immediate shutdown, and force should be used as a last resort.
+3.	Repeat Step 2 and validate that the virtual machine is no longer running.
+Using esxtop to kill a virtual machine
+You can use the k command in esxtop to send a signal to, and kill, a running virtual machine process.
+1.	On the ESXi console, enter Tech Support mode and log in as root. 
+2.	Run the esxtop utility by running this command:
+
+esxtop
+ 
+3.	Press c to switch to the CPU resource utilization screen.
+4.	Press Shift+v to limit the view to virtual machines. This may make it easier to find the Leader World ID in step 7.
+5.	Press f to display the list of fields.
+6.	Press c to add the column for the Leader World ID.
+7.	Identify the target virtual machine by its Name and Leader World ID (LWID).
+8.	Press k.
+9.	At the World to kill prompt, type in the Leader World ID from step 7, and press Enter.
+10.	Wait 30 seconds and validate that the process is no longer listed.
+  
+Using the ESXi command-line utility vim-cmd to power off the virtual machine
+1.	On the ESXi console, enter Tech Support mode and log in as root. 
+2.	Get a list of all registered virtual machines, identified by their VMID, Display Name, and path to the .vmx configuration file by running this command:
+
+vim-cmd vmsvc/getallvms
+ 
+3.	Get the current state of a virtual machine by running this command:
+
+vim-cmd vmsvc/power.getstate VMID
+ 
+4.	Shutdown the virtual machine using the VMID found in Step 2 and run this command:
+
+vim-cmd vmsvc/power.shutdown VMID
+
+Note: If the virtual machine fails to shut down, run this command:
+
+vim-cmd vmsvc/power.off VMID
+
+Note: If the above procedures did not resolve the issue and the ESXi host is responsive, it may need to be rebooted to put the virtual machine in a powered-off state. You could migrate all the virtual machines to other ESXi with vMotion to avoid downtime.
+
+#solution 2
+
+Note: For more information on resolving the symptoms described above, see Restarting the Management agents on an ESXi or ESX host (1003490). If your problem is re-occurring, and you must determine which task the ESXi/ESX host is taking a long time to process.
+
+To isolate the task, follow these steps for the appropriate host:
+ 
+
+ESX hosts
+To collect information about tasks for ESX hosts:
+ 
+Log into the ESX host at the console or via SSH. For more information, see Unable to connect to an ESX host using Secure Shell (SSH) (1003807).
+To get a list of tasks on the host, run the command:
+
+vim-cmd vimsvc/task_list
+
+The output is similar to:
+
+(ManagedObjectReference) [
+'vim.Task:haTask-112-vim.VirtualMachine.createSnapshot-3887',
+'vim.Task:haTask-pool21-vim.ResourcePool.updateConfig-33252',
+'vim.Task:haTask-pool22-vim.ResourcePool.updateConfig-33253',
+'vim.Task:haTask-pool3-vim.ResourcePool.updateConfig-33254',
+'vim.Task:haTask-pool5-vim.ResourcePool.updateConfig-33255',
+'vim.Task:haTask-pool6-vim.ResourcePool.updateConfig-33256',
+'vim.Task:haTask-pool7-vim.ResourcePool.updateConfig-33257',
+'vim.Task:haTask-pool8-vim.ResourcePool.updateConfig-33258',
+'vim.Task:haTask-pool10-vim.ResourcePool.updateConfig-33260'
+]
+ 
+To get a list of tasks associated to specific virtual machines, you must first get the Vmid of the virtual machine. Run the command:
+
+vim-cmd vmsvc/getallvms
+
+The output is similar to:
+
+Vmid Name File Guest OS Version Annotation
+112 VM-1 [Datastore] VM-3/VM-3.vmx winLonghornGuest vmx-04
+128 VM-2 [Datastore] VM-3/VM-3.vmx winXPProGuest vmx-04
+144 VM-3 [Datastore] VM-3/VM-3.vmx winNetStandardGuest vmx-04
+ 
+Make note of the values under the Vmid column as they are referenced in later steps.
+When you have the Vmid, you can then get a list of tasks associated with a specific virtual machine. Run the command:
+
+vim-cmd vmsvc/get.tasklist VMID
+
+Where VMIDis the number identified in step 4.
+
+The output is similar to:
+
+(ManagedObjectReference) [
+'vim.Task:haTask-112-vim.VirtualMachine.createSnapshot-3887'
+]
+ 
+Make note of the task identifier. In the example above, the task identifier is:
+
+haTask-112-vim.VirtualMachine.createSnapshot-3887
+ 
+To get information about the status of a particular task, run the command:
+
+vim-cmd vimsvc/task_info task_identifier
+
+Where task_identifier is the string recorded in step 6.
+
+The output is similar to:
+
+(vim.TaskInfo) {
+dynamicType = <unset>,
+key = "haTask-112-vim.VirtualMachine.createSnapshot-3887",
+task = 'vim.Task:haTask-112-vim.VirtualMachine.createSnapshot-3887',
+description = (vmodl.LocalizableMessage) null,
+name = "vim.VirtualMachine.createSnapshot",
+descriptionId = "VirtualMachine.createSnapshot",
+entity = 'vim.VirtualMachine:112',
+entityName = "deploy-test",
+state = "running",
+cancelled = false,
+cancelable = false,
+error = (vmodl.MethodFault) null,
+result = <unset>,
+progress = 15,
+reason = (vim.TaskReasonUser) {
+dynamicType = <unset>,
+userName = "root",
+},
+queueTime = "2012-11-28T01:29:35.233835Z",
+startTime = "2012-11-28T01:29:35.234891Z",
+completeTime = <unset>,
+eventChainId = 2936866,
+changeTag = <unset>,
+parentTaskKey = <unset>,
+rootTaskKey = <unset>,
+}
+ 
+ESXi hosts
+To collect information about tasks for ESXi hosts:
+ 
+Log into the ESXi host at the console. For more information, see Tech Support Mode for Emergency Support (1003677).
+To get a list of tasks on the host, run the command:
+
+vim-cmd vimsvc/task_list
+
+The output is similar to:
+
+(ManagedObjectReference) [
+'vim.Task:haTask-112-vim.VirtualMachine.createSnapshot-3887',
+'vim.Task:haTask-pool21-vim.ResourcePool.updateConfig-33252',
+'vim.Task:haTask-pool22-vim.ResourcePool.updateConfig-33253',
+'vim.Task:haTask-pool3-vim.ResourcePool.updateConfig-33254',
+'vim.Task:haTask-pool5-vim.ResourcePool.updateConfig-33255',
+'vim.Task:haTask-pool6-vim.ResourcePool.updateConfig-33256',
+'vim.Task:haTask-pool7-vim.ResourcePool.updateConfig-33257',
+'vim.Task:haTask-pool8-vim.ResourcePool.updateConfig-33258',
+'vim.Task:haTask-pool10-vim.ResourcePool.updateConfig-33260'
+]
+ 
+To get a list of tasks associated to specific virtual machines, you must first get the Vmid of the virtual machine. Run the command:
+
+vim-cmd vmsvc/getallvms
+
+The output is similar to:
+
+Vmid Name File Guest OS Version Annotation
+112 VM-1 [Datastore] VM-3/VM-3.vmx winLonghornGuest vmx-04
+128 VM-2 [Datastore] VM-3/VM-3.vmx winXPProGuest vmx-04
+144 VM-3 [Datastore] VM-3/VM-3.vmx winNetStandardGuest vmx-04
+ 
+Make note of the values under the Vmid column as they are referenced in later steps.
+When you have the Vmid, you can then get a list of tasks associated with a specific virtual machine by running the command:
+
+vim-cmd vmsvc/get.tasklist VMID
+
+Where VMID is the number identified in step 4.
+
+The output is similar to:
+
+(ManagedObjectReference) [
+'vim.Task:haTask-112-vim.VirtualMachine.createSnapshot-3887'
+]
+ 
+Make note of the task identifier. In the example above, the task identifier is:
+
+haTask-112-vim.VirtualMachine.createSnapshot-3887
+ 
+To get information about the status of a particular task, run the command:
+
+vim-cmd vimsvc/task_info task_identifier
+
+Where task_identifier is the string recorded in step 6.
+
+The output is similar to:
+
+(vim.TaskInfo) {
+dynamicType = <unset>,
+key = "haTask-112-vim.VirtualMachine.createSnapshot-3887",
+task = 'vim.Task:haTask-112-vim.VirtualMachine.createSnapshot-3887',
+description = (vmodl.LocalizableMessage) null,
+name = "vim.VirtualMachine.createSnapshot",
+descriptionId = "VirtualMachine.createSnapshot",
+entity = 'vim.VirtualMachine:112',
+entityName = "deploy-test",
+state = "running",
+cancelled = false,
+cancelable = false,
+error = (vmodl.MethodFault) null,
+result = <unset>,
+progress = 15,
+reason = (vim.TaskReasonUser) {
+dynamicType = <unset>,
+userName = "root",
+},
+queueTime = "2012-11-28T01:29:35.233835Z",
+startTime = "2012-11-28T01:29:35.234891Z",
+completeTime = <unset>,
+eventChainId = 2936866,
+changeTag = <unset>,
+parentTaskKey = <unset>,
+rootTaskKey = <unset>,
+}
+
+Reference Links:
+
+https://kb.vmware.com/s/article/82542
+https://kb.vmware.com/s/article/82559
+Best solutions:
+https://kb.vmware.com/s/article/1013003
+https://kb.vmware.com/s/article/1014165
