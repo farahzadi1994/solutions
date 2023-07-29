@@ -1,2 +1,2 @@
 # solutions
-My problems solutions
+my problem solving journal
