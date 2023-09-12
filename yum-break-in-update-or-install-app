@@ -1,0 +1,17 @@
+when in install package your os reboot or anyway your yum is break you can use this code or website.
+URL:https://linuxconfig.org/how-to-remove-orphaned-packages-on-centos-linux
+Instructions
+First check whether a package-cleanup is available. If not, use the below command to install it:
+
+# yum install yum-utils
+Obtain List of Orphaned Packages
+Next, use package-cleanup to obtain list of orphaned packages currently residing in the system:
+
+$ package-cleanup --leaves
+The above command will create a list of all orphaned packages, for review, one package per line.
+
+Remove Orphaned Packages
+Lastly, use yum remove to remove the entire list:
+
+# yum remove `package-cleanup --leaves`
+Note, you might need to run the above commands few times to uninstall all orphaned packages. Make sure to generate a preview of all packages to be removed and review them after each iteration.
