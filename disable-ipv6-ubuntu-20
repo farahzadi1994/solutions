@@ -1,0 +1,16 @@
+To temporarily disable IPv6 address on Ubuntu 20.04:
+# sysctl -w net.ipv6.conf.all.disable_ipv6=1
+net.ipv6.conf.all.disable_ipv6 = 1
+# sysctl -w net.ipv6.conf.default.disable_ipv6=1
+net.ipv6.conf.default.disable_ipv6 = 1
+
+To disable permanently use this code:
+As an administrative user open up the /etc/default/grub file using your favourite text editor and make to following changes:
+FROM:
+GRUB_CMDLINE_LINUX_DEFAULT=""
+TO:
+GRUB_CMDLINE_LINUX_DEFAULT="ipv6.disable=1"
+Once ready update Grub menu:
+$ sudo update-grub
+In case you need to re-enable the IPv6 network addresses simply remove the ipv6.disable=1 from the /etc/default/grub file and run the update-grub command.
+  URL: https://linuxconfig.org/how-to-disable-ipv6-address-on-ubuntu-20-04-lts-focal-fossa
