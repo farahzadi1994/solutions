@@ -1,0 +1,2 @@
+for x in `ls /sys/class/scsi_host/`; do echo "-----$x Scanned-----";echo "- - -">/sys/class/scsi_host/$x/scan; done
+https://geekpeek.net/rescan-scsi-bus-on-linux-system/
