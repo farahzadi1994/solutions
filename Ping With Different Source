@@ -1,0 +1,4 @@
+You can use This to ping With Different source.
+ping -c4 -I 192.168.122.124 8.8.8.8
+Option -I Use for Different Source IP or network.
+URL:https://www.cyberciti.biz/faq/ping-using-specific-gateway-interface-or-source-ip-address/
