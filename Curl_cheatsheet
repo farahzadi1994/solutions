@@ -1,0 +1,46 @@
+# Auth/data:
+curl -u user:pass -d status="Hello" http://twitter.com/statuses/update.xml
+$ curl --user username:password http://example.com/
+$ curl -u username:password http://example.com/
+
+# Output File
+$ curl -o file http://url/file
+$ curl --output file http://url/file
+
+# Execute remote script
+$ curl -s http://url/myscript.sh
+# CURL script install rvm
+curl -sSL https://get.rvm.io | bash
+
+#Download header information
+# display header information
+$ curl -I url
+
+# Download a series of files
+curl "https://{foo,bar}.com/file_[1-4].webp" --output "#1_#2.webp"
+
+#Check website response time
+curl -s -w \
+'\nLookup time:\t%{time_namelookup}\nConnect time:\t%{time_connect}\nAppCon time:\t%{time_appconnect}\nRedirect time:\t%{time_redirect}\nPreXfer time:\t%{time_pretransfer }\nStartXfer time:\t%{time_starttransfer}\n\nTotal time:\t%{time_total}\n' \
+     -o /dev/null https://www.google.com
+
+# CURL Advanced
+curl -L -s http://ipecho.net/plain, curl -L -s http://whatismijnip.nl	get my public IP
+curl -u $username:$password http://repo.dennyzhang.com/README.txt	curl with credentials
+curl -v -F key1=value1 -F upload=@localfilename <URL>	curl upload
+curl -k -v --http2 https://www.google.com/	use http2 curl
+curl -T cryptopp552.zip -u test:test ftp://10.32.99.187/	curl ftp upload
+curl -u test:test ftp://10.32.99.187/cryptopp552.zip -o cryptopp552.zip	curl ftp download
+curl -v -u admin:admin123 --upload-file package1.zip http://mysever:8081/dir/package1.zip	upload with credentials curl
+
+# CURL GET/HEAD
+curl -I https://quickref.me	curl sends a request
+curl -v -I https://quickref.me	curl request with details
+curl -X GET https://quickref.me	use explicit http method for curl
+curl --noproxy 127.0.0.1 http://www.stackoverflow.com	curl without http proxy
+curl --connect-timeout 10 -I -k https://quickref.me	curl has no timeout by default
+curl --verbose --header "Host: www.mytest.com:8182" quickref.me	curl get extra header
+curl -k -v https://www.google.com	curl get response with headers
+
+Reference: https://github.com/Fechin/reference/blob/main/source/_posts/curl.md
+
