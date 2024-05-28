@@ -1,0 +1,11 @@
+Environment
+CloudLinux OS 8.9
+Solution
+Please run this command to work around the issue
+
+# rpm --import https://repo.almalinux.org/almalinux/RPM-GPG-KEY-AlmaLinux
+Cause
+The GPG key for the xfsdump package was not installed, resulting in a GPG check failure during the package installation, which was resolved by importing the necessary key from the AlmaLinux repository.
+
+cloudlinux-release-8.9-2.el8 package contains an updated AlmaLinux key, but won't help with current systems. Therefore, please apply the workaround anyway.
+URL: https://cloudlinux.zendesk.com/hc/en-us/articles/12225072530204-yum-update-error-Error-GPG-check-FAILED
