@@ -1,0 +1,16 @@
+Execute telnet SERVERNAME 25. This connects telnet to port 25 on the server with the name SERVERNAME. The name or IP address of the server for a domain can be determined by dig DOMAIN -t MX. If there is no own MX record for a domain, the corresponding A-record must be used.
+If the TCP connection can be established, telnet responds with the message Connected to SERVERNAME. and Escape character is' ^]'. .
+Now you can send an e-mail via SMTP protocol. The best way to do this is to use a recipient address for which the connected mail server is responsible.
+#EHLO test.example.com
+#MAIL FROM:<SENDERADDRESS>
+#RCPT TO:<RECIPIENTADDRESS>
+#DATA
+#Subject: Testmessage
+#(Blank line, press Enter again)
+#This is a test.
+#(Blank line, press Enter again)
+#.
+#QUIT
+
+URL:https://www.thomas-krenn.com/en/wiki/Test_TCP_Port_25_(smtp)_access_with_telnet
+URL:https://learn.microsoft.com/en-us/exchange/mail-flow/test-smtp-telnet?view=exchserver-2019
