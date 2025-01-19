@@ -1,0 +1,93 @@
+
+### Steps to Connect to a Non-Amazon S3 Service (e.g., DigitalOcean Spaces, Wasabi, MinIO):
+
+1. **Install s3fs**
+
+   If you haven't installed **s3fs** yet, you can do so with the following command:
+
+   ```bash
+   sudo apt-get install -y s3fs fuse
+   ```
+
+   (For CentOS or RHEL, use `yum` instead of `apt-get`.)
+
+2. **Set up credentials file**
+
+   To connect to non-Amazon S3 services, you'll need to store your access keys (Access Key and Secret Key) in a credentials file. You can create or edit the `~/.passwd-s3fs` file.
+
+   The format of this file is:
+
+   ```
+   ACCESS_KEY_ID:SECRET_ACCESS_KEY
+   ```
+
+   Replace the placeholders with your access credentials from the specific S3 service (e.g., DigitalOcean Spaces, Wasabi, MinIO).
+
+3. **Set the custom S3 endpoint**
+
+   To connect to non-Amazon S3 services, you need to modify the `url` and `endpoint` parameters in the `s3fs` command to point to the correct S3 service endpoint.
+
+   **Example for DigitalOcean Spaces:**
+
+   For **DigitalOcean Spaces**, you would use the appropriate endpoint for your region (e.g., `nyc3.digitaloceanspaces.com` for the New York region):
+
+   ```bash
+   s3fs my-bucket-name ~/my-s3-bucket -o passwd_file=~/.passwd-s3fs -o url=https://nyc3.digitaloceanspaces.com -o endpoint=nyc3
+   ```
+
+   In this command:
+   - `my-bucket-name`: Your DigitalOcean Spaces bucket name.
+   - `~/my-s3-bucket`: The local directory where you want to mount the S3 bucket.
+   - `passwd_file=~/.passwd-s3fs`: The file containing your AWS credentials.
+   - `url=https://nyc3.digitaloceanspaces.com`: The URL of your S3 service (DigitalOcean Spaces in this case).
+   - `endpoint=nyc3`: The region (NYC3 in this case).
+
+   **Example for Wasabi:**
+
+   For **Wasabi** (another S3-compatible service), the URL would be:
+
+   ```bash
+   s3fs my-bucket-name ~/my-s3-bucket -o passwd_file=~/.passwd-s3fs -o url=https://s3.wasabisys.com
+   ```
+
+   **Example for MinIO:**
+
+   If you're using **MinIO** (an open-source S3-compatible storage), the URL would be your MinIO server address:
+
+   ```bash
+   s3fs my-bucket-name ~/my-s3-bucket -o passwd_file=~/.passwd-s3fs -o url=http://minio.example.com:9000 -o use_path_request_style
+   ```
+
+   Here:
+   - `http://minio.example.com:9000` is your MinIO server's URL.
+   - `use_path_request_style` is necessary for MinIO to handle the path-style S3 URLs.
+
+4. **Auto-mount the bucket on boot**
+
+   To automatically mount the S3 bucket on system startup, you can add it to the `/etc/fstab` file. For example, for DigitalOcean Spaces, add the following line to the end of your `/etc/fstab` file:
+
+   ```bash
+   s3fs#my-bucket-name /home/username/my-s3-bucket fuse _netdev,allow_other,passwd_file=/home/username/.passwd-s3fs,url=https://nyc3.digitaloceanspaces.com 0 0
+   ```
+
+   Replace `username` with your actual username, and adjust the `url` according to your S3 service.
+
+5. **Check the mount status**
+
+   To verify that the bucket is properly mounted, you can use the following commands:
+
+   ```bash
+   ls ~/my-s3-bucket
+   df -h
+   ```
+
+---
+
+### Summary:
+
+To connect to a non-Amazon S3 service:
+1. Use the `url` option to set the custom endpoint for your S3 service.
+2. Provide the access credentials in the `passwd_file` parameter.
+3. Mount the S3 bucket using the custom service's endpoint and credentials.
+
+This way, you can connect to services like DigitalOcean Spaces, Wasabi, MinIO, or other S3-compatible services.
