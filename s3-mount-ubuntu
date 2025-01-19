@@ -91,3 +91,5 @@ To connect to a non-Amazon S3 service:
 3. Mount the S3 bucket using the custom service's endpoint and credentials.
 
 This way, you can connect to services like DigitalOcean Spaces, Wasabi, MinIO, or other S3-compatible services.
+
+https://www.nakivo.com/blog/mount-amazon-s3-as-a-drive-how-to-guide/
