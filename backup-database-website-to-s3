@@ -1,0 +1,20 @@
+#!/bin/sh
+THEDBUSER="myDatabaseUsername"
+THEDBPW="myDatabasePassword"
+THEDATE=`date +%d%m%y%H%M`
+# Export all the databases
+mysqldump -u $THEDBUSER -p${THEDBPW} --all-databases > /var/www/_backups/dbbackup_${THEDATE}.sql
+# Remove backups older than 31 days
+find /var/www/_backups/site* -mtime +31 -exec rm {} \;
+find /var/www/_backups/apache* -mtime +31 -exec rm {} \;
+find /var/www/_backups/db* -mtime +31 -exec rm {} \;
+# Export files
+tar czf /var/www/_backups/sitebackup_${THEDATE}.tar -C / var/www/docs
+# Export the Apache vhosts configuration
+tar czf /var/www/_backups/apachebackup_${THEDATE}.tar -C / etc/apache2/sites-available
+# Sync to amazon. With the 'delete' option, the files removed from
+# /var/www/_backups will be removed from the bucket as well
+aws s3 sync /var/www/_backups s3://my-bucket-name --delete
+
+
+Site :https://medium.com/@_PierreMary/backup-your-linux-server-to-amazon-s3-e6289c00aa78
