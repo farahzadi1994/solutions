@@ -13,6 +13,9 @@ From https://test.docker.com:
 
 curl -fsSL https://test.docker.com -o test-docker.sh
 sh test-docker.sh
+sudo usermod -aG docker $USER
+
+
 From the source repo (This will install latest from the stable channel):
 
 sh install.sh
